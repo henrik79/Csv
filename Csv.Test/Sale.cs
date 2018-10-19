@@ -3,7 +3,7 @@
 namespace Csv.Test
 {
     /// <summary>
-    ///     Sales data for Norway or Finland
+    ///     Sales data 
     /// </summary>
     public class Sale
     {
