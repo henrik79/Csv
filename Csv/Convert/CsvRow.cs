@@ -22,7 +22,7 @@ namespace Csv.Convert
             if (fieldValues.Length != columns.Length)
                 throw new ArgumentException("Column mismatch");
 
-            var fields = fieldValues.Select((t, i) => new FieldValue {Name = columns[i], Value = t}).ToList();
+            var fields = fieldValues.Select((t, i) => new FieldValue (columns[i], t)).ToList();
 
             return new CsvRow {RowNumber = rowNumber, Fields = fields};
 

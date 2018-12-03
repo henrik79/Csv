@@ -6,12 +6,35 @@ using FsCheck;
 using FsCheck.Xunit;
 using Xunit;
 
-
 namespace Csv.Test
 {
-    
     public class CsvRowToObjectTest
     {
+        [Property]
+        public Property Negative_Integer_Should_Be_Parsed_As_Negative_Integer(NegativeInt x)
+        {
+            var csvRow = new CsvRow
+            {
+                RowNumber = 1,
+                Fields = new List<FieldValue> {new FieldValue("Volume", x.ToString())}
+            };
+
+            return (CsvRowToObject<Sale>.Convert(csvRow).Volume == x.Item).ToProperty();
+        }
+
+
+        [Property]
+        public Property Decimal_String_Should_Be_Parsed_As_Decimal(decimal x)
+        {
+            var csvRow = new CsvRow
+            {
+                RowNumber = 1,
+                Fields = new List<FieldValue> {new FieldValue("ProductPrice", x.ToString(CultureInfo.InvariantCulture))}
+            };
+
+            return (CsvRowToObject<Sale>.Convert(csvRow).ProductPrice == x).ToProperty();
+        }
+
         [Fact]
         public void CsvRow_Fields_Are_Mapped_To_Corresponding_Object_Properties()
         {
@@ -21,11 +44,11 @@ namespace Csv.Test
                 Fields =
                     new List<FieldValue>
                     {
-                        new FieldValue {Name = "AccountCode", Value = "AC123456"},
-                        new FieldValue {Name = "ProductCode", Value = "1050"},
-                        new FieldValue {Name = "DeliveryDate", Value = "2015-01-01"},
-                        new FieldValue {Name = "Volume", Value = "100"},
-                        new FieldValue {Name = "TotalMarketValue", Value = "10000"}
+                        new FieldValue("AccountCode", "AC123456"),
+                        new FieldValue("ProductCode", "1050"),
+                        new FieldValue("DeliveryDate", "2015-01-01"),
+                        new FieldValue("Volume", "100"),
+                        new FieldValue("TotalMarketValue", "10000")
                     }
             };
 
@@ -39,38 +62,12 @@ namespace Csv.Test
         }
 
         [Fact]
-        
-        public void Invalid_Date_Returns_ArgumentException()
-        {
-            var csvRow = new CsvRow
-            {
-                RowNumber = 1,
-                Fields = new List<FieldValue> {new FieldValue {Name = "DeliveryDate", Value = "0"}}
-            };
-
-             Assert.Throws<ArgumentException>(() => CsvRowToObject<Sale>.Convert(csvRow)) ;
-        }
-
-        [Fact]
-        
-        public void Invalid_Date_Returns_Failed_To_Parse_As_Date()
-        {
-            var csvRow = new CsvRow
-            {
-                RowNumber = 1,
-                Fields = new List<FieldValue> {new FieldValue {Name = "DeliveryDate", Value = "0"}}
-            };
-
-            Assert.Throws<ArgumentException>(() => CsvRowToObject<Sale>.Convert(csvRow));
-        }
-
-        [Fact]
         public void Empty_String_For_Date_Translates_To_DateTime_Min()
         {
             var csvRow = new CsvRow
             {
                 RowNumber = 1,
-                Fields = new List<FieldValue> { new FieldValue { Name = "DeliveryDate", Value = "" } }
+                Fields = new List<FieldValue> {new FieldValue("DeliveryDate", "")}
             };
 
             var sale = CsvRowToObject<Sale>.Convert(csvRow);
@@ -79,12 +76,50 @@ namespace Csv.Test
         }
 
         [Fact]
+        public void Integer_With_Space_Should_Be_Parsed_As_Integer_With_Space_Removed()
+        {
+            var csvRow = new CsvRow
+            {
+                RowNumber = 1,
+                Fields = new List<FieldValue> {new FieldValue("Volume", "780 589")}
+            };
+
+            var sale = CsvRowToObject<Sale>.Convert(csvRow);
+
+            Assert.Equal(780589, sale.Volume);
+        }
+
+        [Fact]
+        public void Invalid_Date_Returns_ArgumentException()
+        {
+            var csvRow = new CsvRow
+            {
+                RowNumber = 1,
+                Fields = new List<FieldValue> {new FieldValue("DeliveryDate", "0")}
+            };
+
+            Assert.Throws<ArgumentException>(() => CsvRowToObject<Sale>.Convert(csvRow));
+        }
+
+        [Fact]
+        public void Invalid_Date_Returns_Failed_To_Parse_As_Date()
+        {
+            var csvRow = new CsvRow
+            {
+                RowNumber = 1,
+                Fields = new List<FieldValue> {new FieldValue("DeliveryDate", "0")}
+            };
+
+            Assert.Throws<ArgumentException>(() => CsvRowToObject<Sale>.Convert(csvRow));
+        }
+
+        [Fact]
         public void Invalid_Integer_Returns_ArgumentException()
         {
             var csvRow = new CsvRow
             {
                 RowNumber = 1,
-                Fields = new List<FieldValue> {new FieldValue {Name = "Volume", Value = "T"}}
+                Fields = new List<FieldValue> {new FieldValue("Volume", "T")}
             };
 
             Assert.Throws<ArgumentException>(() => CsvRowToObject<Sale>.Convert(csvRow));
@@ -96,7 +131,7 @@ namespace Csv.Test
             var csvRow = new CsvRow
             {
                 RowNumber = 1,
-                Fields = new List<FieldValue> { new FieldValue { Name = "Volume", Value = "T" } }
+                Fields = new List<FieldValue> {new FieldValue("Volume", "T")}
             };
 
             try
@@ -107,46 +142,6 @@ namespace Csv.Test
             {
                 Assert.Equal("Failed to parse \"T\" as Int32 for field Volume", ex.Message);
             }
-        }
-        
-        [Fact]
-        public void Integer_With_Space_Should_Be_Parsed_As_Integer_With_Space_Removed()
-        {
-            var csvRow = new CsvRow
-            {
-                RowNumber = 1,
-                Fields = new List<FieldValue> { new FieldValue { Name = "Volume", Value = "780 589" } }
-            };
-
-            var sale = CsvRowToObject<Sale>.Convert(csvRow);
-
-            Assert.Equal(780589, sale.Volume);
-
-        }
-        
-        [Property]
-        public Property Negative_Integer_Should_Be_Parsed_As_Negative_Integer(NegativeInt x)
-        {
-            var csvRow = new CsvRow
-            {
-                RowNumber = 1,
-                Fields = new List<FieldValue> { new FieldValue { Name = "Volume", Value = x.ToString() } }
-            };
-
-            return (CsvRowToObject<Sale>.Convert(csvRow).Volume == x.Item).ToProperty();
-        }
-
-
-        [Property]
-        public Property Decimal_String_Should_Be_Parsed_As_Decimal(decimal x)
-        {
-            var csvRow = new CsvRow
-            {
-                RowNumber = 1,
-                Fields = new List<FieldValue> { new FieldValue { Name = "ProductPrice", Value = x.ToString(CultureInfo.InvariantCulture) } }
-            };
-
-            return  (CsvRowToObject<Sale>.Convert(csvRow).ProductPrice == x).ToProperty();
         }
     }
 }

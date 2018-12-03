@@ -84,8 +84,7 @@ namespace Csv.Test
         public void Property_Volume_On_Converted_Object_Are_Equal_To_Input()
         {
             var reader = new CsvFileRead<Sale>();
-            var stream = GenerateStreamFromString(
-                $"AccountCode;ProductCode;DeliveryDate;TotalMarketValue;Volume{Environment.NewLine}ACNO1000;2408797;2015-03-01;130 987;24 896");
+            var stream = $"AccountCode;ProductCode;DeliveryDate;TotalMarketValue;Volume{Environment.NewLine}ACNO1000;2408797;2015-03-01;130 987;24 896";
 
             var result = reader.Convert(stream);
             var salesObject = result.Data.First();
