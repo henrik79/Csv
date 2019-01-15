@@ -21,13 +21,13 @@ namespace Csv.Convert
             try
             {
                 if (type == typeof(DateTime))
-                    return string.IsNullOrEmpty(value) ? DateTime.MinValue : DateTime.Parse(trimmedValue);
+                    return string.IsNullOrEmpty(value) ? DateTime.MinValue : DateTime.Parse(trimmedValue, CultureInfo.InvariantCulture);
 
                 if (type == typeof(int) || type == typeof(decimal))
                 {
                     trimmedValue = trimmedValue.Replace(" ", string.Empty);
 
-                    if (type != typeof(decimal)) return int.Parse(trimmedValue);
+                    if (type != typeof(decimal)) return int.Parse(trimmedValue, CultureInfo.InvariantCulture);
 
                     try
                     {

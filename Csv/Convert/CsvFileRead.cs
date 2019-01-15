@@ -12,7 +12,6 @@ namespace Csv.Convert
     /// <typeparam name="T">Class to convert to</typeparam>
     public class CsvFileRead<T> where T : new()
     {
-
         /// <summary>
         /// Convert Stream to a DataResult of type T
         /// </summary>
